@@ -117,7 +117,7 @@ public class LibGenComputerBookService {
             }
             // 流直接上传，零本地落地
             InputStream fileStream = resp.body().byteStream();
-            String cdnAccessUrl = qiNiuUploader.uploadStream(fileStream, cloudSaveKey);
+            String cdnAccessUrl = qiNiuUploader.upload(fileStream, cloudSaveKey);
             return "✅ 上传成功：" + cdnAccessUrl;
         }
     }
