@@ -49,7 +49,11 @@
             <artifactId>qiniu-java-sdk</artifactId>
             <version>7.15.0</version>
         </dependency>
-
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
         <!-- JSON序列化 fastjson2 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
