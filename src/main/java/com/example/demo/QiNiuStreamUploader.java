@@ -30,25 +30,27 @@ public class QiNiuStreamUploader {
     private final UploadManager uploadManager;
 
     public QiNiuStreamUploader() {
-        Configuration cfg = new Configuration(Region.huabei());
+        Configuration cfg = new Configuration(Region.huadong());
         uploadManager = new UploadManager(cfg);
     }
 
+    // 标准上传方法
     public String upload(InputStream inputStream, String cloudKey) throws Exception {
         Auth auth = Auth.create(accessKey, secretKey);
         String upToken = auth.uploadToken(bucketName);
 
-        // 1. 先接收 Response 对象（这一行对应报错45行）
         Response response = uploadManager.put(inputStream, cloudKey, upToken, null, null);
 
-        // 校验上传是否成功
         if (!response.isOK()) {
-            throw new RuntimeException("七牛上传失败，状态码：" + response.statusCode + " 详情：" + response.bodyString());
+            throw new RuntimeException("七牛上传失败，状态码：" + response.statusCode + " 响应内容：" + response.bodyString());
         }
 
-        // 2. JSON反序列化为返回实体
         DefaultPutRet ret = response.jsonToObject(DefaultPutRet.class);
-
         return cdnDomain + "/" + ret.key;
+    }
+
+    // 【关键】兼容你Service里调用的 uploadStream 方法，彻底解决找不到符号报错
+    public String uploadStream(InputStream inputStream, String cloudKey) throws Exception {
+        return upload(inputStream, cloudKey);
     }
 }
