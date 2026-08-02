@@ -1,9 +1,11 @@
 package com.example.demo;
+
 import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
@@ -28,21 +30,25 @@ public class QiNiuStreamUploader {
     private final UploadManager uploadManager;
 
     public QiNiuStreamUploader() {
-        // 华东存储区域，华北/西南替换 Region.huabei() / Region.xinan()
-        Configuration cfg = new Configuration(Region.huadong());
+        Configuration cfg = new Configuration(Region.huabei());
         uploadManager = new UploadManager(cfg);
     }
 
-    /**
-     * 文件输入流直接上传七牛对象存储
-     * @param inputStream 远程下载文件流
-     * @param cloudKey 云端存储路径+文件名
-     * @return CDN可直接访问链接
-     */
-    public String uploadStream(InputStream inputStream, String cloudKey) throws Exception {
+    public String upload(InputStream inputStream, String cloudKey) throws Exception {
         Auth auth = Auth.create(accessKey, secretKey);
-        String uploadToken = auth.uploadToken(bucketName);
-        DefaultPutRet result = uploadManager.put(inputStream, cloudKey, uploadToken, null, null);
-        return cdnDomain + "/" + result.key;
+        String upToken = auth.uploadToken(bucketName);
+
+        // 1. 先接收 Response 对象（这一行对应报错45行）
+        Response response = uploadManager.put(inputStream, cloudKey, upToken, null, null);
+
+        // 校验上传是否成功
+        if (!response.isOK()) {
+            throw new RuntimeException("七牛上传失败，状态码：" + response.statusCode + " 详情：" + response.bodyString());
+        }
+
+        // 2. JSON反序列化为返回实体
+        DefaultPutRet ret = response.jsonToObject(DefaultPutRet.class);
+
+        return cdnDomain + "/" + ret.key;
     }
 }
