@@ -1,0 +1,12 @@
+# 七牛云配置
+qiniu:
+  access-key: PWMsSGLWdeomLovWAThPNWmGVbpH3-ynemrRJb54
+  secret-key: BpL3U6BaH0jC3js1ac28knwGewlEmdM2TTYgFJYW
+  bucket-name: bookwws
+  cdn-domain: http://tikyxorg9.hb-bkt.clouddn.com  # 绑定的访问域名
+  pdf-prefix: pdf/
+  cover-prefix: cover/
+  
+# 强制关闭代理
+proxy:
+  enable: false
